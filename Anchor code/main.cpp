@@ -4,9 +4,6 @@
 #include <BLEScan.h>
 #include <WiFi.h>
 #include <PubSubClient.h>
-#include <FreeRTOS.h>
-#include <task.h>
-#include <semphr.h>
 
   //Wifi 
 const char* ssid =  "NXT-AP2";  //"1234"; 
