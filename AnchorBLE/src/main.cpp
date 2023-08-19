@@ -1,3 +1,7 @@
+/*    Author : Salah-eddine EL ABBASSI  
+      https://www.linkedin.com/in/salah-eddine-el-abbassi-3a99b923a/                                   */
+
+
 #include <Arduino.h>
 #include <BLEDevice.h>
 #include <BLEUtils.h>
