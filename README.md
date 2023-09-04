@@ -1,6 +1,6 @@
 # Real-Time Location System (RTLS) with ESP32 Anchors
 
-This project implements an RTLS using ESP32 anchors for accurate position tracking of Bluetooth Low Energy beacons.
+This project implements an RTLS using ESP32 anchors for accurate position tracking of Bluetooth Low Energy (BLE) beacons.
 
 ## Table of Contents
 - [Hardware Setup](#hardware-setup)
