@@ -52,7 +52,6 @@ To use the position calculation script:
 
    ```bash
    pip install paho-mqtt pykalman
-   ```bash
    pip install pykalman
 
 
