@@ -1,5 +1,3 @@
-/* NOT THIS */
-
 #include <Arduino.h>
 #include <BLEDevice.h>
 #include <BLEUtils.h>
@@ -8,12 +6,21 @@
 #include <PubSubClient.h>
 
   //Wifi 
-const char* ssid =  "NXT-AP2";  //"1234"; 
-const char* password =  "2899100*-+"; //"salah1234";
-  //Mqtt
-const char* mqtt_server = "3f271f1bd5ef4564bf5bb214a1d730e7.s1.eu.hivemq.cloud";
-const int mqtt_port = 8883;
-const char* mqtt_topic = "ble/rssi1";
+const char* ssid =    "èèèèèèè";   //Wifi name;
+const char* password =  "éééééééééé";   // password;
+  
+  // MQTT Broker
+const char *mqtt_broker = "broker.emqx.io";
+const char *topic = "anchor1/rssi";
+const char *mqtt_username = "emqx";
+const char *mqtt_password = "public";
+const int mqtt_port = 1883;
+
+
+//const char* mqtt_server = "192.168.43.239";
+//const char* mqtt_password = ""; // No password required
+//const int mqtt_port = 1883;
+//const char* mqtt_topic = "anchor1/rssi";
 //const char* mqtt_username = "mqtt_username";
 //const char* mqtt_password = "mqtt_password";
 
@@ -23,11 +30,30 @@ BLEScan* pBLEScan;
 SemaphoreHandle_t scanMutex;
 
 
+// MAC addresses of BLE devices to filter
+const char* macToFilter = "00:11:22:33:44:55";
 
 class MyAdvertisedDeviceCallbacks : public BLEAdvertisedDeviceCallbacks {
     void onResult(BLEAdvertisedDevice advertisedDevice) {
-        // Not used here since we're performing scanning in the loop
-        
+        // Filter devices based on MAC address
+        Serial.print("callback function ");
+        if (advertisedDevice.getAddress().equals(BLEAddress(macToFilter))) {
+            Serial.print("Found BLE Device: ");
+            Serial.print("Name: ");
+            Serial.print(advertisedDevice.getName().c_str()); // Convert to C-style string
+            Serial.print(", MAC: ");
+            Serial.print(advertisedDevice.getAddress().toString().c_str());
+            Serial.print(", RSSI: ");
+            Serial.println(advertisedDevice.getRSSI());
+
+            char payload[10];
+            snprintf(payload, sizeof(payload), "%d", advertisedDevice.getRSSI());
+
+            // Publish RSSI data to MQTT topic
+            if (client.connected()) {
+                client.publish(topic, payload);
+            }
+        }
     }
 };
 
@@ -52,14 +78,17 @@ void scanBLE(void* parameter) {
         int count = foundDevices.getCount();
         xSemaphoreGive(scanMutex);
 
-        char payload[10];
+        //char payload[10];
         for (int i = 0; i < count; i++) {
             BLEAdvertisedDevice device;
             xSemaphoreTake(scanMutex, portMAX_DELAY);
             device = foundDevices.getDevice(i);
             xSemaphoreGive(scanMutex);
 
-            Serial.println("Found BLE Device: ");
+            // Handle the device in the callback
+            device.getRSSI(); // This will trigger the callback
+
+            /* Serial.println("Found BLE Device: ");
             Serial.print("Name: ");
             Serial.print(device.getName().c_str()); // Convert to C-style string
             Serial.print(", MAC: ");
@@ -72,10 +101,10 @@ void scanBLE(void* parameter) {
             if (client.connected()) {
                 client.publish(mqtt_topic, payload);
             }
-            Serial.println();
-        }
+            Serial.println(); */
+        } 
 
-        vTaskDelay(5000 / portTICK_PERIOD_MS); // Wait for 5 seconds before scanning again
+        vTaskDelay(10000 / portTICK_PERIOD_MS); // Wait for 5 seconds before scanning again
         xSemaphoreTake(scanMutex, portMAX_DELAY);
         BLEDevice::getScan()->clearResults(); // Delete results from BLEScan buffer to release memory
         xSemaphoreGive(scanMutex);
@@ -84,17 +113,36 @@ void scanBLE(void* parameter) {
 
 // Task for handling MQTT
 void mqttTask(void* parameter) {
-    while (1) {
-        if (!client.connected()) {
-            client.connect("ESP32Client");
-            Serial.println("Connecting to MQTT...");
+client.setServer(mqtt_broker, mqtt_port);
+    //client.setCallback(callback);
+    while (!client.connected()) {
+        String client_id = "esp32-client-";
+        client_id += String(WiFi.macAddress());
+        Serial.printf("The client %s connects to the public MQTT broker\n", client_id.c_str());
+        if (client.connect(client_id.c_str(), mqtt_username, mqtt_password)) {
+            Serial.println("Public EMQX MQTT broker connected");
+        } else {
+            Serial.print("failed with state ");
+            Serial.print(client.state());
             vTaskDelay(2000 / portTICK_PERIOD_MS);
+        }
+    }
+    /*while (1) {
+        if (!client.connected()) {
+            client.setServer(mqtt_server, mqtt_port);
+            client.connect("ESP32Clienthvjh");
+            Serial.println("Connecting to MQTT...");
+
+            vTaskDelay(2000 / portTICK_PERIOD_MS);
+        }
+        else {
+         Serial.println("Mqtt connected");
         }
 
         // Handle MQTT messages and other MQTT-related tasks here
 
         vTaskDelay(1000 / portTICK_PERIOD_MS); // Adjust the delay as needed
-    }
+    }*/
 }
 
 void setup() {
@@ -103,6 +151,8 @@ void setup() {
     BLEScan* pBLEScan = BLEDevice::getScan();
     pBLEScan->setAdvertisedDeviceCallbacks(new MyAdvertisedDeviceCallbacks());
     pBLEScan->setActiveScan(true);
+
+    
 
     // Create a mutex to protect BLE scanning
     scanMutex = xSemaphoreCreateMutex();
@@ -116,11 +166,3 @@ void setup() {
 void loop() {
     // The main loop is not used since tasks are handling the operations
 }
-
-    
-
-
-
-
-
-
