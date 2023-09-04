@@ -17,6 +17,7 @@ anchor1_position = (0, 0)
 anchor2_position = (2, 0)
 anchor3_position = (0, 3) )
 change calculs.py based on your anchors positions.
+2. change const char* macToFilter = "00:11:22:33:44:55"; to your beacon Mac in the anchor code.
 3. Calibrate the anchors, if necessary, to account for variations in signal strength and positioning.
 
 
