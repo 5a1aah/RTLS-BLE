@@ -13,8 +13,8 @@ To set up the ESP32 anchors for accurate positioning:
 
 1. Physically place the three ESP32 anchors in your environment at known positions. Ensure they have power and network connectivity.
 (in this example
-anchor1_position = (0, 0)
-anchor2_position = (2, 0)
+anchor1_position = (0, 0), 
+anchor2_position = (2, 0), 
 anchor3_position = (0, 3) )
 change calculs.py based on your anchors positions.
 2. change const char* macToFilter = "00:11:22:33:44:55"; to your beacon Mac in the anchor code.
@@ -29,7 +29,7 @@ You can customize the MQTT topic used by the ESP32 anchors as follows:
 
 2. Locate the MQTT topic configuration in the code.
 
-3. Update the `mqtt_topic` variable to anchor1/rssi for anchor 1 ;anchor2/rssi for 2nd anchor3/rssi for 3rd (or to your desired MQTT topics names).
+3. Update the `mqtt_topic` variable to anchor1/rssi for anchor 1 ;  anchor2/rssi for 2nd   anchor3/rssi for 3rd (or to your desired MQTT topics names).
 
 4. Save the changes and upload the modified code to your ESP32 anchors.
 
